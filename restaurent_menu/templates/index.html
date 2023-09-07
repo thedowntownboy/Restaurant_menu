@@ -6,7 +6,14 @@
 </head>
 <body>
 <h1>Restaurant Menu</h1>
-{{ meals }}
-{{ ingredients }}
+{% for meal in meals %}
+    <h2>{{ meal.1 }}</h2>
+    {% for row in items_list %}
+        <h3>{{ row.meal}}</h3>
+        <p>{{ row.description}}</p>
+
+{% endfor %}
+{% endfor %}
+
 </body>
 </html>
