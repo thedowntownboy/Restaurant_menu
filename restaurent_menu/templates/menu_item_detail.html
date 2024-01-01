@@ -1,14 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>Menu Item</h1>
-<h3>{{ items.meal }}</h3>
-<h3>{{ items.description }}</h3>
-<h3>£ {{ items.price }}</h3>
+{% extends 'base.html'%}
+{% block content %}
+<style>
+    .custom-alert {
+        position: fixed;
+        top: 55px;
+        right: 10px;
+        width: 300px;
+        z-index: 1;
+    }
+</style>
 
-</body>
-</html>
+<div class="container">
+
+
+        <h1 class="pt-5">{{ items.meal }}</h1>
+        <h3>{{ items.description }}</h3>
+        <h3>£ {{ items.price }}</h3>
+        <div class="col-md-1">
+
+                    <div>
+                        <select class="form-select form-select-sm" id="qty-cart">
+
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+        {% if items.status == 1 %}
+            <button type="button" value="{{ items.id }}"
+                     class="btn btn-outline-secondary mt-4" id="add-cart">Add to Bag</button>
+           <a href="{% url 'home' %}"><button
+                     class="d-flex btn btn-outline-secondary mt-4">back to menu</button></a>
+        {% else %}
+            <button type="button" value="{{ items.id }}"
+                     class="btn btn-outline-danger mt-4" disabled>Sorry Unavailable</button>
+            <a href="{% url 'home' %}"><button type="button"
+                     class="d-flex btn btn-outline-secondary mt-4">back to menu</button></a>
+        {% endif %}
+</div>
+
+<script>
+<!--// check if button pressed-->
+$(document).on('click', '#add-cart', function(e){
+    e.preventDefault();
+    // Get the selected quantity from the dropdown
+    var selectedQuantity = $('#qty-cart option:selected').text();
+
+    // Create a Bootstrap alert element with custom styling
+    var alertElement = $('<div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">' +
+                            '<strong>Added to Bag!</strong> ' +
+                            'You have added ' + selectedQuantity + ' item(s) to your bag.' +
+
+
+                        '</div>');
+
+    // Append the alert element to the body
+    alertElement.appendTo('body');
+
+    // Automatically dismiss the alert after 3 seconds (adjust as needed)
+    setTimeout(function(){
+        alertElement.alert('close');
+    }, 1500);
+
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url 'cart_add' %}',
+        data: {
+                item_id: $('#add-cart').val(),
+                item_qty: $('#qty-cart option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+        },
+
+        success: function(json){
+                //console.log(json)
+                document.getElementById('cart_quantity').textContent = json.qty
+        },
+        error: function(xhr, errmsg, err){
+
+        }
+        });
+})
+
+
+</script>
+
+{% endblock %}
+
